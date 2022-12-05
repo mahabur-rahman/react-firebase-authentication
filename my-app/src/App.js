@@ -1,84 +1,101 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 import "./App.css";
+import { auth } from "./firebase-config";
 
-const App = () => {
-  // register state
+function App() {
   const [registerEmail, setRegisterEmail] = useState("");
-  const [registerPass, setRegisterPass] = useState("");
-
-  // login state
+  const [registerPassword, setRegisterPassword] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
-  const [loginPass, setLoginPass] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  const [user, setUser] = useState({});
+
+  onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser);
+  });
 
   // REGISTER USER
-  const registerUser = async () => {};
+  const register = async () => {
+    try {
+      const user = await createUserWithEmailAndPassword(
+        auth,
+        registerEmail,
+        registerPassword
+      );
+      console.log(user);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   // LOGIN USER
-  const loginUser = async () => {};
+  const login = async () => {
+    try {
+      const user = await signInWithEmailAndPassword(
+        auth,
+        loginEmail,
+        loginPassword
+      );
+      console.log(user);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   // LOGOUT
-  const logout = async () => {};
+  const logout = async () => {
+    await signOut(auth);
+  };
 
   return (
-    <>
-      <div className="main_form">
-        <h1 style={{ textAlign: "center" }}>Firebase authentication</h1>
+    <div className="App">
+      <div>
+        <h3> Register User </h3>
+        <input
+          placeholder="Email..."
+          onChange={(event) => {
+            setRegisterEmail(event.target.value);
+          }}
+        />
+        <input
+          placeholder="Password..."
+          onChange={(event) => {
+            setRegisterPassword(event.target.value);
+          }}
+        />
 
-        <hr />
-
-        <div
-          style={{ background: "#ddd", textAlign: "center", padding: "5rem" }}
-        >
-          <h1>Register User : </h1>
-
-          <input
-            type="email"
-            placeholder="email.."
-            onChange={(e) => {
-              setRegisterEmail(e.target.value);
-            }}
-          />
-          <input
-            type="password"
-            placeholder="password.."
-            onChange={(e) => {
-              setRegisterPass(e.target.value);
-            }}
-          />
-
-          <button onClick={registerUser}>Register User</button>
-          <br />
-          <br />
-          <br />
-          <br />
-
-          <h1>Login User : </h1>
-
-          <input
-            type="email"
-            placeholder="email.."
-            onChange={(e) => {
-              setLoginEmail(e.target.value);
-            }}
-          />
-          <input
-            type="password"
-            placeholder="password.."
-            onChange={(e) => {
-              setLoginPass(e.target.value);
-            }}
-          />
-
-          <button onClick={loginUser}>Login User</button>
-
-          <h4> User Logged In: </h4>
-          <span style={{ color: "green" }}>user info</span>
-
-          <button onClick={logout}>Logout</button>
-        </div>
+        <button onClick={register}> Create User</button>
       </div>
-    </>
+
+      <div>
+        <h3> Login </h3>
+        <input
+          placeholder="Email..."
+          onChange={(event) => {
+            setLoginEmail(event.target.value);
+          }}
+        />
+        <input
+          placeholder="Password..."
+          onChange={(event) => {
+            setLoginPassword(event.target.value);
+          }}
+        />
+
+        <button onClick={login}> Login</button>
+      </div>
+
+      <h4> User Logged In: </h4>
+      <span style={{color : 'green'}}> {user?.email}</span>
+      <button onClick={logout}> Sign Out </button>
+    </div>
   );
-};
+}
 
 export default App;
